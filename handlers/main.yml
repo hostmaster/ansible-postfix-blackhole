@@ -1,0 +1,13 @@
+--- 
+- name: restart postfix
+  service: name=postfix state=restarted    
+
+- name: reload postfix
+  service: name=postfix state=restarted    
+
+- name: update aliases
+  command: newaliases
+
+- name: update virtual aliases
+  command: postmap /etc/postfix/virtual_aliases
+  notify: reload postfix

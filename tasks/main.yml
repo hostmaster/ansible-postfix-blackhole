@@ -1,0 +1,56 @@
+---
+
+- name: postfix installed 
+  apt: pkg=postfix update_cache=yes state=latest
+
+- name: postfix main configuration 
+  lineinfile: dest=/etc/postfix/main.cf
+    state=present
+    backup=yes
+    regexp='^{{ item.key }}\s+=\s+.*$'
+    line='{{ item.key }} = {{ item.value }}'                
+  with_items:
+    - { key: 'myhostname', value: '{{ mail_domain }}' }
+    - { key: 'alias_maps', value: 'hash:/etc/aliases' }
+    - { key: 'alias_database', value: 'hash:/etc/aliases' }
+    - { key: 'myorigin', value: '/etc/mailname' }
+    - { key: 'mydestination', value: '{{ mail_domain }}, localhost.localdomain, localhost' }
+    - { key: 'relayhost', value: " " }
+    - { key: 'mynetworks', value: '127.0.0.0/8' }
+    - { key: 'mailbox_size_limit', value: '0' }
+    - { key: 'home_mailbox',  value: "Maildir/" }
+    - { key: 'mailbox_command', value: "" } 
+    - { key: 'recipient_delimiter', value: '+' }
+    - { key: 'inet_interfaces', value: 'all' }
+    - { key: 'default_transport', value: 'smtp' }
+    - { key: 'relay_transport', value: 'smtp' }
+    - { key: 'inet_protocols', value: 'ipv4' }
+    - { key: 'virtual_alias_maps', value: 'hash:/etc/postfix/virtual_aliases' }
+  notify:
+    - reload postfix
+
+- name: postfix master configuration 
+  lineinfile: dest=/etc/postfix/master.cf
+    state=present
+    backup=yes
+    regexp='^#?smtp\s+inet\s+n\s+.*$'
+    line='smtp      inet  n       -       -       -       -       smtpd'
+  notify:
+    - restart postfix
+
+# with_items:
+# - { service: 'smtp', type: 'inet', private: 'n', unpriv: '-', chroot: '-', wakeup: '-', maxprox: '-', cmd: 'smtpd' } 
+
+- name: Update mail aliases database
+  template: dest=/etc/aliases
+    src=aliases.j2
+    owner=root group=root mode=0644
+  notify:
+    - update aliases
+
+- name: Update virtual mail aliases database
+  template: dest=/etc/postfix/virtual_aliases
+    src=virtual_aliases.j2
+    owner=root group=root mode=0644
+  notify:
+    - update virtual aliases

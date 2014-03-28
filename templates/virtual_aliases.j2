@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+# virtual alias database
+{% if aliases is defined %}
+# custom aliases
+{% for alias in aliases %}
+{{ alias.key }}@{{ mail_domain }} {{ alias.value }}
+{% endfor %}
+{% endif %}
+# pre-defined aliases
+{% for alias in default_vmail_aliases %}
+{{ alias.key }}@{{ mail_domain }} {{ alias.value }}
+{% endfor %}

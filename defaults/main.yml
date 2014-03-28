@@ -1,0 +1,10 @@
+default_mail_aliases:
+ - { key: 'postmaster', value: 'root'}
+ - { key: 'logcheck',   value: 'root'}
+ - { key: 'root',       value: '{{ admin_user }}'}
+# - { key: 'blackhole',  value: '/dev/null'}
+
+default_vmail_aliases:
+ - { key: 'postmaster',   value: 'root' }
+ - { key: 'info',         value: 'root' }
+ - { key: "",             value: 'blackhole'}

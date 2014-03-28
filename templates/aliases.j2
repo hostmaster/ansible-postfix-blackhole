@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+
+# Local alias database
+
+{% for alias in default_mail_aliases %}
+{{ alias.key }}: {{ alias.value }}
+{% endfor %}
